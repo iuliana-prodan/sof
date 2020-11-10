@@ -40,9 +40,17 @@
 #include "pdm_decim_int32_12_4156_5345_010_090.h"
 #endif
 
-/* Note: Higher spec filter must be before lower spec filter
- * if there are multiple filters for a decimation factor. The naming
- * scheme of coefficients set is:
+/* Note 1: Higher spec filter must be before lower spec filter
+ * if there are multiple filters for a decimation factor. The first
+ * filter is skipped if the length is too much vs. overrun limit. If
+ * other order the better filter would be never selected.
+ *
+ * Note 2: The introduction order of FIR decimation factors is the selection
+ * preference order. The Lower not prime numbers like 2, 4, are better
+ * compatible for FIR A and FIR B simultaneous usage with different output
+ * sample rates than 3. The same for 6 vs. 5.
+ *
+ * The naming scheme of coefficients set is:
  * <type>_<decim factor>_<rel passband>_<rel stopband>_<ripple>_<attenuation>
  */
 struct pdm_decim *fir_list[] = {
@@ -50,17 +58,17 @@ struct pdm_decim *fir_list[] = {
 	&pdm_decim_int32_02_4375_5100_010_095,
 	&pdm_decim_int32_02_4323_5100_010_095,
 #endif
-#if CONFIG_INTEL_DMIC_FIR_DECIMATE_BY_3
-	&pdm_decim_int32_03_4375_5100_010_095,
-#endif
 #if CONFIG_INTEL_DMIC_FIR_DECIMATE_BY_4
 	&pdm_decim_int32_04_4318_5100_010_095,
 #endif
-#if CONFIG_INTEL_DMIC_FIR_DECIMATE_BY_5
-	&pdm_decim_int32_05_4325_5100_010_095,
+#if CONFIG_INTEL_DMIC_FIR_DECIMATE_BY_3
+	&pdm_decim_int32_03_4375_5100_010_095,
 #endif
 #if CONFIG_INTEL_DMIC_FIR_DECIMATE_BY_6
 	&pdm_decim_int32_06_4172_5100_010_095,
+#endif
+#if CONFIG_INTEL_DMIC_FIR_DECIMATE_BY_5
+	&pdm_decim_int32_05_4325_5100_010_095,
 #endif
 #if CONFIG_INTEL_DMIC_FIR_DECIMATE_BY_8
 	&pdm_decim_int32_08_4156_5301_010_090,
