@@ -85,10 +85,8 @@ struct comp_buffer *buffer_new(struct sof_ipc_buffer *desc)
 		buffer->pipeline_id = desc->comp.pipeline_id;
 		buffer->core = desc->comp.core;
 
-		buffer->stream.underrun_permitted = desc->flags &
-						    SOF_BUF_UNDERRUN_PERMITTED;
-		buffer->stream.overrun_permitted = desc->flags &
-						   SOF_BUF_OVERRUN_PERMITTED;
+		buffer->stream.underrun_permitted = true;
+		buffer->stream.overrun_permitted = true;
 
 		memcpy_s(&buffer->tctx, sizeof(struct tr_ctx),
 			 &buffer_tr, sizeof(struct tr_ctx));
