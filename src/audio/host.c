@@ -30,6 +30,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <limits.h>
 
 static const struct comp_driver comp_host;
 
@@ -228,6 +229,10 @@ static void host_one_shot_cb(struct comp_dev *dev, uint32_t bytes)
 	}
 }
 
+extern uint64_t first_time_host_copy;
+int first_host_copy = 1;
+extern uint64_t start_time_ipc;
+
 /* This is called by DMA driver every time when DMA completes its current
  * transfer between host and DSP.
  */
@@ -238,6 +243,8 @@ static void host_dma_cb(void *arg, enum notify_id type, void *data)
 	struct host_data *hd = comp_get_drvdata(dev);
 	uint32_t bytes = next->elem.size;
 
+	uint64_t diff_time_ipc_host_copy_ms;
+
 	comp_cl_dbg(&comp_host, "host_dma_cb() %p", &comp_host);
 
 	/* update position */
@@ -246,6 +253,21 @@ static void host_dma_cb(void *arg, enum notify_id type, void *data)
 	/* callback for one shot copy */
 	if (hd->copy_type == COMP_COPY_ONE_SHOT)
 		host_one_shot_cb(dev, bytes);
+
+	if (first_host_copy) {
+		first_time_host_copy = platform_timer_get(timer_get());
+		comp_info(dev, "host: host_dma_cb: start_time_ipc = %u", (unsigned int)start_time_ipc);
+		comp_info(dev, "host: host_dma_cb: first_time_host_copy = %u", (unsigned int)first_time_host_copy);
+		first_host_copy = 0;
+
+		diff_time_ipc_host_copy_ms = (first_time_host_copy - start_time_ipc) / clock_ms_to_ticks(PLATFORM_DEFAULT_CLOCK, 1);
+		if (diff_time_ipc_host_copy_ms <= UINT_MAX)
+			comp_info(dev, "host: host_dma_cb: from ipc to host_dma_cb took: %u ms",
+				(unsigned int)diff_time_ipc_host_copy_ms);
+		else
+			comp_info(dev, "host: host_dma_cb: > %u ms",
+				UINT_MAX);
+	}
 }
 
 /**

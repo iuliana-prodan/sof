@@ -1382,6 +1382,14 @@ static int ipc_glb_test_message(uint32_t header)
 }
 #endif
 
+uint64_t start_time_ipc;
+uint64_t start_time_dai;
+uint64_t first_time_dai_copy;
+uint64_t first_time_host_copy;
+uint64_t stop_time;
+
+int first_ipc_entry = 1;
+
 /*
  * Global IPC Operations.
  */
@@ -1411,6 +1419,11 @@ void ipc_cmd(struct sof_ipc_cmd_hdr *hdr)
 		ret = ipc_glb_tplg_message(hdr->cmd);
 		break;
 	case SOF_IPC_GLB_PM_MSG:
+		if (first_ipc_entry) {
+			start_time_ipc = platform_timer_get(timer_get());
+			tr_info(&ipc_tr, "ipc: ipc_cmd: start_time = %u", (unsigned int)start_time_ipc);
+			first_ipc_entry = 0;
+		}
 		ret = ipc_glb_pm_message(hdr->cmd);
 		break;
 	case SOF_IPC_GLB_COMP_MSG:
