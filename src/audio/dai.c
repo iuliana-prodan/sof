@@ -35,6 +35,7 @@
 #include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <limits.h>
 
 static const struct comp_driver comp_dai;
 
@@ -630,11 +631,18 @@ static void dai_update_start_position(struct comp_dev *dev)
 	dd->start_position = dev->position;
 }
 
+
+extern uint64_t start_time_dai;
+int first_dai_entry = 1;
+
 /* used to pass standard and bespoke command (with data) to component */
 static int dai_comp_trigger_internal(struct comp_dev *dev, int cmd)
 {
 	struct dai_data *dd = comp_get_drvdata(dev);
 	int ret;
+
+	uint64_t stop_time_dai;
+	uint64_t diff_time_dai_ms;
 
 	comp_dbg(dev, "dai_comp_trigger_internal(), command = %u", cmd);
 
@@ -647,15 +655,30 @@ static int dai_comp_trigger_internal(struct comp_dev *dev, int cmd)
 
 	switch (cmd) {
 	case COMP_TRIGGER_START:
-		comp_dbg(dev, "dai_comp_trigger_internal(), START");
+		comp_info(dev, "dai_comp_trigger_internal(), START");
 
 		/* only start the DAI if we are not XRUN handling */
 		if (dd->xrun == 0) {
+			if (first_dai_entry) {
+				start_time_dai = platform_timer_get(timer_get());
+				comp_info(dev, "dai: dai_comp_trigger_internal: start_time_dai = %u", (unsigned int)start_time_dai);
+				first_dai_entry = 0;
+			}
+
 			ret = dma_start(dd->chan);
 			if (ret < 0)
 				return ret;
 			/* start the DAI */
 			dai_trigger(dd->dai, cmd, dev->direction);
+
+			stop_time_dai = platform_timer_get(timer_get());
+			diff_time_dai_ms = (stop_time_dai - start_time_dai) / clock_ms_to_ticks(PLATFORM_DEFAULT_CLOCK, 1);
+			if (diff_time_dai_ms <= UINT_MAX)
+				comp_info(dev, "dai: dai_comp_trigger_internal: DAI and DMA start took: %u ms",
+					(unsigned int)diff_time_dai_ms);
+			else
+				comp_info(dev, "dai: dai_comp_trigger_internal: DAI and DMA start took: > %u ms",
+					UINT_MAX);
 		} else {
 			dd->xrun = 0;
 		}

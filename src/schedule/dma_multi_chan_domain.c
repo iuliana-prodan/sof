@@ -22,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <limits.h>
 
 struct dma_domain_data {
 	int irq;
@@ -45,6 +46,11 @@ struct dma_domain {
 
 const struct ll_schedule_domain_ops dma_multi_chan_domain_ops;
 
+extern uint64_t start_time_ipc;
+extern uint64_t start_time_dai;
+extern uint64_t stop_time;
+
+int first_dma_entry = 1;
 /**
  * \brief Generic DMA interrupt handler.
  * \param[in,out] data Pointer to DMA domain data.
@@ -52,6 +58,33 @@ const struct ll_schedule_domain_ops dma_multi_chan_domain_ops;
 static void dma_multi_chan_domain_irq_handler(void *data)
 {
 	struct dma_domain_data *domain_data = data;
+	uint64_t diff_time_ipc_ms;
+	uint64_t diff_time_dai_ms;
+
+	if (first_dma_entry) {
+		stop_time = platform_timer_get(timer_get());
+
+		diff_time_ipc_ms = (stop_time - start_time_ipc) / clock_ms_to_ticks(PLATFORM_DEFAULT_CLOCK, 1);
+		tr_info(&ll_tr, "dma_multi_chan_domain: dma_multi_chan_domain_irq_handler: stop_time = %u", (unsigned int)stop_time);
+
+		if (diff_time_ipc_ms <= UINT_MAX)
+			tr_info(&ll_tr, "dma_multi_chan_domain: dma_multi_chan_domain_irq_handler: from ipc to execute took: %u ms",
+				(unsigned int)diff_time_ipc_ms);
+		else
+			tr_info(&ll_tr, "dma_multi_chan_domain: dma_multi_chan_domain_irq_handler: > %u ms",
+				UINT_MAX);
+
+		diff_time_dai_ms = (stop_time - start_time_dai) / clock_ms_to_ticks(PLATFORM_DEFAULT_CLOCK, 1);
+
+		if (diff_time_dai_ms <= UINT_MAX)
+			tr_info(&ll_tr, "dma_multi_chan_domain: dma_multi_chan_domain_irq_handler: from dai/dma start to execute took: %u ms",
+				(unsigned int)diff_time_dai_ms);
+		else
+			tr_info(&ll_tr, "dma_multi_chan_domain: dma_multi_chan_domain_irq_handler: > %u ms",
+				UINT_MAX);
+
+		first_dma_entry = 0;
+	}
 
 	/* just call registered handler */
 	domain_data->handler(domain_data->arg);
