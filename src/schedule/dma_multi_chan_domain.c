@@ -45,6 +45,20 @@ struct dma_domain {
 
 const struct ll_schedule_domain_ops dma_multi_chan_domain_ops;
 
+#if defined(__ZEPHYR__) && defined(CONFIG_IMX)
+#define interrupt_get_irq mux_interrupt_get_irq
+#define interrupt_register mux_interrupt_register
+#define interrupt_unregister mux_interrupt_unregister
+#define interrupt_enable mux_interrupt_enable
+#define interrupt_disable mux_interrupt_disable
+
+int interrupt_get_irq(unsigned int irq, const char *cascade);
+int interrupt_register(uint32_t irq, void(*handler)(void *arg), void *arg);
+void interrupt_unregister(uint32_t irq, const void *arg);
+uint32_t interrupt_enable(uint32_t irq, void *arg);
+uint32_t interrupt_disable(uint32_t irq, void *arg);
+#endif
+
 /**
  * \brief Generic DMA interrupt handler.
  * \param[in,out] data Pointer to DMA domain data.
