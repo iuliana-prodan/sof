@@ -7,7 +7,7 @@ set -e
 
 SOF_TOP=$(cd "$(dirname "$0")" && cd .. && pwd)
 
-SUPPORTED_PLATFORMS=(apl cnl icl tgl-h)
+SUPPORTED_PLATFORMS=(apl cnl icl tgl-h imx8)
 # Default value, can be overridden on the command line
 WEST_TOP="${SOF_TOP}"/zephyrproject
 BUILD_JOBS=$(nproc --all)
@@ -104,6 +104,10 @@ build()
 				PLAT_CONFIG='intel_adsp_cavs25'
 				RIMAGE_KEY=modules/audio/sof/keys/otc_private_key_3k.pem
 				;;
+                        imx8)
+                                PLAT_CONFIG='nxp_adsp_imx8'
+                                ;;
+
 			*)
 				echo "Unsupported platform: $platform"
 				exit 1
