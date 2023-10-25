@@ -8,7 +8,6 @@
 #define __SOF_DRIVERS_ALH__
 
 #include <ipc/dai-intel.h>
-#include <platform/drivers/alh.h>
 #include <sof/lib/dai.h>
 
 struct alh_pdata {

@@ -15,6 +15,15 @@
 /* data cache line alignment */
 #define PLATFORM_DCACHE_ALIGN	32
 
+/* Size of a single memory bank (EBB) in bytes */
+#define SRAM_BANK_SIZE (64 * 1024)
+/* Number of memory banks (EBB) */
+#define EBB_BANKS_IN_SEGMENT	32
+/* Number of High Power SRAM memory banks manageable by DSP */
+#define PLATFORM_HPSRAM_EBB_COUNT	0
+/* Number of Low Power SRAM memory banks manageable by DSP */
+#define PLATFORM_LPSRAM_EBB_COUNT	0
+
 /* physical DSP addresses */
 
 #define IRAM_BASE	0x3b6f8000

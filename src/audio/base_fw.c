@@ -141,9 +141,13 @@ static int basefw_hw_config(uint32_t *data_offset, char *data)
 	tlv_value_uint32_set(tuple, IPC4_HP_EBB_COUNT_HW_CFG, PLATFORM_HPSRAM_EBB_COUNT);
 
 	tuple = tlv_next(tuple);
+#ifdef CONFIG_IMX
+	value =  DAI_NUM_SAI_BASE;
+#else
 	/* 2 DMIC dais */
 	value =  DAI_NUM_SSP_BASE + DAI_NUM_HDA_IN + DAI_NUM_HDA_OUT +
 			DAI_NUM_ALH_BI_DIR_LINKS + 2;
+#endif
 	tlv_value_uint32_set(tuple, IPC4_GATEWAY_COUNT_HW_CFG, value);
 
 	tuple = tlv_next(tuple);

@@ -10,6 +10,9 @@
 #ifndef __PLATFORM_LIB_DAI_H__
 #define __PLATFORM_LIB_DAI_H__
 
+/** \brief Number of 'base' SAI ports available */
+#define DAI_NUM_SAI_BASE	6
+
 #endif /* __PLATFORM_LIB_DAI_H__ */
 
 #else

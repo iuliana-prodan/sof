@@ -186,6 +186,7 @@ int copier_dai_create(struct comp_dev *dev, struct copier_data *cd,
 		dai.is_config_blob = true;
 		type = ipc4_gtw_alh;
 
+#ifndef CONFIG_IMX
 		/* copier
 		 * {
 		 *  gtw_cfg
@@ -225,6 +226,7 @@ int copier_dai_create(struct comp_dev *dev, struct copier_data *cd,
 		} else {
 			dai_index[dai_count - 1] = IPC4_ALH_DAI_INDEX(node_id.f.v_index);
 		}
+#endif
 
 		break;
 	case ipc4_dmic_link_input_class:
