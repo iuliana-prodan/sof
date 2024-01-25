@@ -804,8 +804,10 @@ static int ipc4_process_glb_message(struct ipc4_message_request *ipc4)
 
 	type = ipc4->primary.r.type;
 
+	tr_dbg(&ipc_tr, "ipc4_process_glb_message: type %d", type);
+
 	switch (type) {
-	case SOF_IPC4_GLB_BOOT_CONFIG:
+	case SOF_IPC4_GLB_BOOT_CONFIG:// = 0
 	case SOF_IPC4_GLB_ROM_CONTROL:
 	case SOF_IPC4_GLB_PERF_MEASUREMENTS_CMD:
 	case SOF_IPC4_GLB_LOAD_MULTIPLE_MODULES:
@@ -819,7 +821,7 @@ static int ipc4_process_glb_message(struct ipc4_message_request *ipc4)
 		break;
 
 	/* pipeline settings */
-	case SOF_IPC4_GLB_CREATE_PIPELINE:
+	case SOF_IPC4_GLB_CREATE_PIPELINE: // = 17,
 		ret = ipc4_new_pipeline(ipc4);
 		break;
 	case SOF_IPC4_GLB_DELETE_PIPELINE:
@@ -1561,7 +1563,7 @@ void ipc_cmd(struct ipc_cmd_hdr *_hdr)
 	int err;
 
 	if (cpu_is_primary(cpu_get_id()))
-		tr_info(&ipc_tr, "rx\t: %#x|%#x", in->primary.dat, in->extension.dat);
+		tr_info(&ipc_tr, "ipc_cmd: rx\t: %#x|%#x", in->primary.dat, in->extension.dat);
 
 	/* no process on scheduled thread */
 	atomic_set(&msg_data.delayed_reply, 0);

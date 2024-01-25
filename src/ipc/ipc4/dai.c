@@ -72,6 +72,7 @@ int dai_config_dma_channel(struct dai_data *dd, struct comp_dev *dev, const void
 	const struct ipc4_copier_module_cfg *copier_cfg = spec_config;
 	struct ipc_config_dai *dai = &dd->ipc_config;
 	int channel;
+	int handshake;
 
 	switch (dai->type) {
 	case SOF_DAI_INTEL_SSP:
@@ -114,6 +115,17 @@ int dai_config_dma_channel(struct dai_data *dd, struct comp_dev *dev, const void
 		 * not during topology parsing.
 		 */
 		channel = 0;
+		break;
+	case SOF_DAI_IMX_SAI:
+		COMPILER_FALLTHROUGH;
+	case SOF_DAI_IMX_ESAI:
+		handshake = dai_get_handshake(dd->dai, dai->direction,
+					      dd->stream_id);
+		channel = ((handshake) & MASK(13, 9)) >> 9;
+		break;
+	case SOF_DAI_IMX_MICFIL:
+		channel = dai_get_handshake(dd->dai, dai->direction,
+					    dd->stream_id);
 		break;
 	default:
 		/* other types of DAIs not handled for now */
@@ -176,6 +188,11 @@ int ipc_dai_data_config(struct dai_data *dd, struct comp_dev *dev)
 		comp_dbg(dev, "dai_data_config() SOF_DAI_INTEL_ALH dev->ipc_config.frame_fmt: %d, stream_id: %d",
 			 dev->ipc_config.frame_fmt, dd->stream_id);
 
+		break;
+	case SOF_DAI_IMX_MICFIL:
+	case SOF_DAI_IMX_SAI:
+	case SOF_DAI_IMX_ESAI:
+		dd->config.burst_elems = dai_get_fifo_depth(dd->dai, dai->direction);
 		break;
 	default:
 		/* other types of DAIs not handled for now */

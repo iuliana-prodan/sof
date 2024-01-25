@@ -129,6 +129,7 @@ static int copier_alh_assign_dai_index(struct comp_dev *dev,
 		*dai_count = dai_num;
 		break;
 	case SOF_DAI_INTEL_ALH:
+#ifndef CONFIG_IMX
 		/* Use DAI_INTEL_ALH for ACE 1.0 and older */
 		if (!is_multi_gateway(node_id)) {
 			dai_index[0] = IPC4_ALH_DAI_INDEX(node_id.f.v_index);
@@ -145,6 +146,7 @@ static int copier_alh_assign_dai_index(struct comp_dev *dev,
 			dai_index[i] = IPC4_ALH_DAI_INDEX(alh_blob->alh_cfg.mapping[i].alh_id);
 
 		*dai_count = dai_num;
+#endif
 		break;
 	default:
 		comp_err(mod->dev, "Invalid dai type selected: %d", dai->type);
@@ -285,6 +287,47 @@ int copier_dai_create(struct comp_dev *dev, struct copier_data *cd,
 						  &dai, dai_index, &dai_count);
 		if (ret)
 			return ret;
+#ifndef CONFIG_IMX
+		/* copier
+		 * {
+		 *  gtw_cfg
+		 *  {
+		 *     gtw_node_id;
+		 *     config_length;
+		 *     config_data
+		 *     {
+		 *	   count;
+		 *	  {
+		 *	     node_id;  \\ normal gtw id
+		 *	     mask;
+		 *	  }  mapping[MAX_ALH_COUNT];
+		 *     }
+		 *   }
+		 * }
+		 */
+		 /* get gtw node id in config data */
+		if (is_multi_gateway(node_id)) {
+			if (copier->gtw_cfg.config_length) {
+				const struct sof_alh_configuration_blob *alh_blob =
+					(const struct sof_alh_configuration_blob *)
+						copier->gtw_cfg.config_data;
+
+				dai_count = alh_blob->alh_cfg.count;
+				if (dai_count > IPC4_ALH_MAX_NUMBER_OF_GTW || dai_count < 0) {
+					comp_err(dev, "Invalid dai_count: %d", dai_count);
+					return -EINVAL;
+				}
+				for (i = 0; i < dai_count; i++)
+					dai_index[i] =
+					IPC4_ALH_DAI_INDEX(alh_blob->alh_cfg.mapping[i].alh_id);
+			} else {
+				comp_err(dev, "No ipc4_alh_multi_gtw_cfg found in blob!");
+				return -EINVAL;
+			}
+		} else {
+			dai_index[dai_count - 1] = IPC4_ALH_DAI_INDEX(node_id.f.v_index);
+		}
+#endif
 		break;
 	case ipc4_dmic_link_input_class:
 		dai.type = SOF_DAI_INTEL_DMIC;

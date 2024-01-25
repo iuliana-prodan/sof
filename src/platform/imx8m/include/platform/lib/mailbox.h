@@ -14,8 +14,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <rtos/panic.h>
+#include <rtos/string.h>
+
 /*
- * The Window Region on i.MX8 SRAM is organised like this :-
+ * The Window Region on i.MX8 SRAM is organized like this :-
  * +--------------------------------------------------------------------------+
  * | Offset              | Region         |  Size                             |
  * +---------------------+----------------+-----------------------------------+
@@ -53,6 +56,9 @@
 #define MAILBOX_STREAM_BASE		SRAM_STREAM_BASE
 #define MAILBOX_STREAM_OFFSET		SRAM_STREAM_OFFSET
 
+#define MAILBOX_SW_REG_SIZE		MAILBOX_DEBUG_SIZE
+#define MAILBOX_SW_REG_BASE		MAILBOX_DEBUG_BASE
+
 static inline void mailbox_sw_reg_write(size_t offset, uint32_t src)
 {
 	volatile uint32_t *ptr;
@@ -61,6 +67,37 @@ static inline void mailbox_sw_reg_write(size_t offset, uint32_t src)
 	*ptr = src;
 }
 
+static inline uint32_t mailbox_sw_reg_read(size_t offset)
+{
+	volatile uint32_t *ptr;
+	volatile uint32_t __sparse_cache *ptr_c;
+
+	ptr_c = (volatile uint32_t __sparse_cache *)(MAILBOX_SW_REG_BASE + offset);
+	ptr = cache_to_uncache((uint32_t __sparse_cache *)ptr_c);
+
+	return *ptr;
+}
+
+static inline uint64_t mailbox_sw_reg_read64(size_t offset)
+{
+	volatile uint64_t *ptr;
+	volatile uint64_t __sparse_cache *ptr_c;
+
+	ptr_c = (volatile uint64_t __sparse_cache *)(MAILBOX_SW_REG_BASE + offset);
+	ptr = cache_to_uncache((uint64_t __sparse_cache *)ptr_c);
+
+	return *ptr;
+}
+
+static inline void mailbox_sw_regs_write(size_t offset, const void *src, size_t bytes)
+{
+	int regs_write_err __unused = memcpy_s((void *)(MAILBOX_SW_REG_BASE + offset),
+					       MAILBOX_SW_REG_SIZE - offset, src, bytes);
+
+	assert(!regs_write_err);
+	dcache_writeback_region((__sparse_force void __sparse_cache *)(MAILBOX_SW_REG_BASE +
+								       offset), bytes);
+}
 #endif /* __PLATFORM_LIB_MAILBOX_H__ */
 
 #else

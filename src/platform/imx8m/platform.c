@@ -27,6 +27,7 @@
 #include <sof/trace/dma-trace.h>
 #include <ipc/dai.h>
 #include <ipc/header.h>
+#include <ipc4/notification.h>
 #include <ipc/info.h>
 #include <kernel/abi.h>
 #include <kernel/ext_manifest.h>
@@ -39,7 +40,7 @@ struct sof;
 static const struct sof_ipc_fw_ready ready
 	__section(".fw_ready") = {
 	.hdr = {
-		.cmd = SOF_IPC_FW_READY,
+		.cmd = SOF_IPC4_FW_READY,
 		.size = sizeof(struct sof_ipc_fw_ready),
 	},
 	/* dspbox is for DSP initiated IPC, hostbox is for host initiated IPC */
@@ -136,7 +137,14 @@ static SHARED_DATA struct timer timer_shared = {
 
 int platform_boot_complete(uint32_t boot_message)
 {
-	mailbox_dspbox_write(0, &ready, sizeof(ready));
+	struct ipc_cmd_hdr header;
+
+	/* get any IPC specific boot message and optional data */
+	ipc_boot_complete_msg(&header, 0);
+	/* send header message */
+	mailbox_dspbox_write(0, &header, sizeof(header));
+	/* send ready message */
+	mailbox_dspbox_write(8, &ready, sizeof(ready));
 
 	/* now interrupt host to tell it we are done booting */
 	imx_mu_xcr_rmw(IMX_MU_VERSION, IMX_MU_GCR, IMX_MU_xCR_GIRn(IMX_MU_VERSION, 1), 0);

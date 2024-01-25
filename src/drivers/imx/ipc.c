@@ -148,6 +148,7 @@ int ipc_platform_send_msg(const struct ipc_msg *msg)
 {
 	struct ipc *ipc = ipc_get();
 	uint32_t gir0_set, gir1_set, control;
+	struct ipc_cmd_hdr *hdr;
 
 	control = imx_mu_read(IMX_MU_xCR(IMX_MU_VERSION, IMX_MU_GCR));
 	gir1_set = control & IMX_MU_xCR_GIRn(IMX_MU_VERSION, 1);
@@ -157,8 +158,15 @@ int ipc_platform_send_msg(const struct ipc_msg *msg)
 	if (ipc->is_notification_pending || gir0_set || gir1_set)
 		return -EBUSY;
 
+	/* prepare the header */
+	hdr->pri = msg->header;
+	hdr->ext = msg->extension;
+
+	/* send header message */
+	mailbox_dspbox_write(0, hdr, 8);
+
 	/* now send the message */
-	mailbox_dspbox_write(0, msg->tx_data, msg->tx_size);
+	mailbox_dspbox_write(8, msg->tx_data, msg->tx_size);
 
 	tr_dbg(&ipc_tr, "ipc: msg tx -> 0x%x", msg->header);
 

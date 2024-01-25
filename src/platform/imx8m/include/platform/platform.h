@@ -20,6 +20,9 @@
 struct ll_schedule_domain;
 struct timer;
 
+/* Version of hw implemented by FW (from ROMInfo) */
+#define HW_CFG_VERSION		0
+
 #define PLATFORM_DEFAULT_CLOCK CLK_CPU(0)
 #define LPSRAM_SIZE 16384
 

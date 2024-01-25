@@ -90,6 +90,19 @@ int dai_assign_group(struct dai_data *dd, struct comp_dev *dev, uint32_t group_i
 	return 0;
 }
 #endif
+
+int dai_zephyr_multi_endpoint_copy(struct dai_data **dd, struct comp_dev *dev,
+				   struct comp_buffer *multi_endpoint_buffer,
+				   int num_endpoints)
+{
+	return 0;
+}
+
+int dai_zephyr_unbind(struct dai_data *dd, struct comp_dev *dev, void *data)
+{
+	return 0;
+}
+
 /* this is called by DMA driver every time descriptor has completed */
 static void dai_dma_cb(void *arg, enum notify_id type, void *data)
 {
