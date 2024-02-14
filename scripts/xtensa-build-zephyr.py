@@ -90,7 +90,7 @@ class PlatformConfig:
 platform_configs_all = {
 	#  Intel platforms
 	"tgl" : PlatformConfig(
-		"intel", "intel_adsp_cavs25",
+		"intel", "intel_adsp/cavs25",
 		f"RG-2017.8{xtensa_tools_version_postfix}",
 		"cavs2x_LX6HiFi3_2017_8",
 		"xcc",
@@ -98,7 +98,7 @@ platform_configs_all = {
 		ipc4 = True
 	),
 	"tgl-h" : PlatformConfig(
-		"intel", "intel_adsp_cavs25_tgph",
+		"intel", "intel_adsp/cavs25/tgph",
 		f"RG-2017.8{xtensa_tools_version_postfix}",
 		"cavs2x_LX6HiFi3_2017_8",
 		"xcc",
@@ -106,14 +106,14 @@ platform_configs_all = {
 		ipc4 = True
 	),
 	"mtl" : PlatformConfig(
-		"intel", "intel_adsp_ace15_mtpm",
+		"intel", "intel_adsp/ace15_mtpm",
 		f"RI-2022.10{xtensa_tools_version_postfix}",
 		"ace10_LX7HiFi4_2022_10",
 		aliases = ['arl', 'arl-s'],
 		ipc4 = True
 	),
 	"lnl" : PlatformConfig(
-		"intel", "intel_adsp_ace20_lnl",
+		"intel", "intel_adsp/ace20_lnl",
 		f"RI-2022.10{xtensa_tools_version_postfix}",
 		"ace10_LX7HiFi4_2022_10",
 		ipc4 = True
