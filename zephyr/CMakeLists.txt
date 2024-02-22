@@ -178,7 +178,7 @@ if (CONFIG_SOC_SERIES_INTEL_CAVS_V25)
 endif()
 
 # Intel ACE 1.5 and newer platforms
-if (CONFIG_SOC_SERIES_INTEL_ACE)
+if (CONFIG_SOC_SERIES_INTEL_ADSP_ACE)
 
 	# Platform sources
 	zephyr_library_sources(
