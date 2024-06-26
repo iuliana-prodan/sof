@@ -141,26 +141,26 @@ platform_configs_all = {
 	#  NXP platforms
 	"imx8" : PlatformConfig(
 		"imx", "imx8qm_mek/mimx8qm6/adsp",
-		f"RI-2023.11{xtensa_tools_version_postfix}",
-		"hifi4_nxp_v5_3_1_prod",
+		f"RJ-2024.3{xtensa_tools_version_postfix}",
+		"hifi4_imx8_RJ_2024",
 		RIMAGE_KEY = "key param ignored by imx8",
 	),
 	"imx8x" : PlatformConfig(
 		"imx", "imx8qxp_mek/mimx8qx6/adsp",
-		f"RI-2023.11{xtensa_tools_version_postfix}",
-		"hifi4_nxp_v5_3_1_prod",
+		f"RJ-2024.3{xtensa_tools_version_postfix}",
+		"hifi4_imx8_RJ_2024",
 		RIMAGE_KEY = "key param ignored by imx8x"
 	),
 	"imx8m" : PlatformConfig(
 		"imx", "imx8mp_evk/mimx8ml8/adsp",
-		f"RI-2023.11{xtensa_tools_version_postfix}",
-		"hifi4_mscale_v2_0_2_prod",
+		f"RJ-2024.3{xtensa_tools_version_postfix}",
+		"hifi4_mscale_RJ_2024",
 		RIMAGE_KEY = "key param ignored by imx8m"
 	),
 	"imx8ulp" : PlatformConfig(
 		"imx", "imx8ulp_evk/mimx8ud7/adsp",
-		f"RI-2023.11{xtensa_tools_version_postfix}",
-		"hifi4_nxp2_s7_v2_1a_prod",
+		f"RJ-2024.3{xtensa_tools_version_postfix}",
+		"hifi4_imx8ulp_RJ_2024",
 		RIMAGE_KEY = "key param ignored by imx8ulp"
 	),
 }
